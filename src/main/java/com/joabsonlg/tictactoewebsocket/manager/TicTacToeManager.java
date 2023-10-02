@@ -73,7 +73,7 @@ public class TicTacToeManager {
                     game.setPlayer1(game.getPlayer2());
                     game.setPlayer2(null);
                     game.setGameState(GameState.WAITING_FOR_PLAYER);
-                    game.setBoard(new String[3][3]);
+                    game.setBoard(new String[TicTacToe.BOARD_SIZE][TicTacToe.BOARD_SIZE]);
                     waitingPlayers.put(game.getPlayer1(), game.getGameId());
                 } else {
                     games.remove(gameId);
@@ -82,7 +82,7 @@ public class TicTacToeManager {
             } else if (player.equals(game.getPlayer2())) {
                 game.setPlayer2(null);
                 game.setGameState(GameState.WAITING_FOR_PLAYER);
-                game.setBoard(new String[3][3]);
+                game.setBoard(new String[TicTacToe.BOARD_SIZE][TicTacToe.BOARD_SIZE]);
                 waitingPlayers.put(game.getPlayer1(), game.getGameId());
             }
             return game;

@@ -2,6 +2,7 @@ package com.joabsonlg.tictactoewebsocket.model;
 
 import com.joabsonlg.tictactoewebsocket.enumeration.GameState;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
  * @author Joabson Arley do Nascimento
  */
 public class TicTacToe {
+    public static final int BOARD_SIZE = 19;
     private String gameId;
     private String[][] board;
     private String player1;
@@ -18,19 +20,29 @@ public class TicTacToe {
     private String winner;
     private String turn;
     private GameState gameState;
+    private MeinDisplay meinDisplay;
+    private MeinCtrl meinCtrl;
+    private int currentSquare = -1;
 
     public TicTacToe(String player1, String player2) {
         this.gameId = UUID.randomUUID().toString();
         this.player1 = player1;
         this.player2 = player2;
         this.turn = player1;
-        this.board = new String[3][3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                this.board[i][j] = " ";
+        this.board = new String[BOARD_SIZE][BOARD_SIZE];
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                this.board[i][j] = "0";
             }
         }
         gameState = GameState.WAITING_FOR_PLAYER;
+        this.meinDisplay = new MeinDisplay();
+        this.meinCtrl = new MeinCtrl(meinDisplay);
+        meinCtrl.resetBoard();
+        board = meinCtrl.cur.toStringArray();
+
+        System.out.println(meinCtrl.cur.toString());
+        System.out.println(Arrays.deepToString(meinCtrl.cur.toStringArray()));
     }
 
     /**
@@ -40,14 +52,34 @@ public class TicTacToe {
      * @param move   the position of the move
      */
     public void makeMove(String player, int move) {
-        int row = move / 3;
-        int col = move % 3;
-        if (Objects.equals(board[row][col], " ")) {
-            board[row][col] = Objects.equals(player, player1) ? "X" : "O";
-            turn = player.equals(player1) ? player2 : player1;
-            checkWinner();
-            updateGameState();
+        currentSquare = meinCtrl.tryMove(currentSquare, move, 0);
+        board = meinCtrl.cur.toStringArray();
+        // TODO: Make the webpage display our move while the computer is calculating
+
+        // Computer's turn (Code copied from MeinCtrl's calcB)
+        if (meinCtrl.curGame.ply % 2 == 0) {
+            meinCtrl.resetEvaluationString();
+            if (meinCtrl.cur.moveNum / 2 % 2 == 0) {
+                meinCtrl.strategy = 0;
+                meinCtrl.posVal = meinCtrl.posVal0;
+            } else {
+                meinCtrl.strategy = 1;
+                meinCtrl.posVal = meinCtrl.posVal1;
+            }
+            int score;
+            score = meinCtrl.cur.anaPlay(meinCtrl.stdDepth, meinCtrl.stdQuiet, meinCtrl.OPT_DEFEND);
+            meinCtrl.displayEvaluationString(score);
         }
+        board = meinCtrl.cur.toStringArray();
+
+//        int row = move / BOARD_SIZE;
+//        int col = move % BOARD_SIZE;
+//        if (Objects.equals(board[row][col], " ")) {
+//            board[row][col] = Objects.equals(player, player1) ? "X" : "O";
+//            turn = player.equals(player1) ? player2 : player1;
+//            checkWinner();
+//            updateGameState();
+//        }
     }
 
     /**
@@ -55,30 +87,17 @@ public class TicTacToe {
      * the winner is set to the corresponding player.
      */
     private void checkWinner() {
-        for (int i = 0; i < 3; i++) {
-            if (Objects.equals(board[i][0], board[i][1]) && Objects.equals(board[i][0], board[i][2])) {
-                if (!Objects.equals(board[i][0], " ")) {
-                    setWinner(Objects.equals(board[i][0], player1) ? player1 : player2);
-                    return;
-                }
-            }
-        }
+        // TODO: Implement
+        return;
 
-        for (int i = 0; i < 3; i++) {
-            if (Objects.equals(board[0][i], board[1][i]) && Objects.equals(board[0][i], board[2][i])) {
-                if (!Objects.equals(board[0][i], " ")) {
-                    setWinner(Objects.equals(board[0][i], player1) ? player1 : player2);
-                    return;
-                }
-            }
-        }
-
-        if (Objects.equals(board[0][0], board[1][1]) && Objects.equals(board[0][0], board[2][2])) {
-            if (!Objects.equals(board[0][0], " ")) {
-                setWinner(Objects.equals(board[0][0], player1) ? player1 : player2);
-                return;
-            }
-        }
+//        for (int i = 0; i < BOARD_SIZE; i++) {
+//            if (Objects.equals(board[i][0], board[i][1]) && Objects.equals(board[i][0], board[i][2])) {
+//                if (!Objects.equals(board[i][0], " ")) {
+//                    setWinner(Objects.equals(board[i][0], player1) ? player1 : player2);
+//                    return;
+//                }
+//            }
+//        }
     }
 
     /**
@@ -100,9 +119,9 @@ public class TicTacToe {
      * @return true if the board is full, false otherwise
      */
     private boolean isBoardFull() {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (Objects.equals(board[i][j], " ")) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (Objects.equals(board[i][j], "0")) {
                     return false;
                 }
             }

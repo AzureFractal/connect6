@@ -1,6 +1,7 @@
 let stompClient = null;
 let game = null;
 let player = null;
+let boardSize = 19;
 
 /**
  * Sends a message to the server using the STOMP client.
@@ -94,10 +95,10 @@ const messageToGame = (message) => {
 const showWinner = (winner) => {
     toastr.success(`The winner is ${winner}!`);
     const winningPositions = getWinnerPositions(game.board);
-    if (winningPositions && winningPositions.length === 3) {
+    if (winningPositions && winningPositions.length === boardSize) {
         winningPositions.forEach(position => {
-            const row = Math.floor(position / 3);
-            const cell = position % 3;
+            const row = Math.floor(position / boardSize);
+            const cell = position % boardSize;
             let cellElement = document.querySelector(`.row-${row} .cell-${cell} span`);
             cellElement.style.backgroundColor = '#b3e6ff';
         });
@@ -167,7 +168,7 @@ const updateBoard = (board) => {
     board.forEach((row, rowIndex) => {
         row.forEach((cell, cellIndex) => {
             const cellElement = document.querySelector(`.row-${rowIndex} .cell-${cellIndex}`);
-            cellElement.innerHTML = cell === ' ' ? '<button onclick="makeMove(' + counter + ')"> </button>' : `<span class="cell-item">${cell}</span>`;
+            cellElement.innerHTML = cell === '0' ? '<button onclick="makeMove(' + counter + ')"> </button>' : `<span class="cell-item">${cell}</span>`;
             counter++;
         });
     });
@@ -180,23 +181,23 @@ const updateBoard = (board) => {
 const getWinnerPositions = (board) => {
     const winnerPositions = [];
 
-    for (let i = 0; i < 3; i++) {
-        if (board[i][0] === board[i][1] && board[i][1] === board[i][2] && board[i][0] !== ' ') {
-            winnerPositions.push(i * 3);
-            winnerPositions.push(i * 3 + 1);
-            winnerPositions.push(i * 3 + 2);
+    for (let i = 0; i < boardSize; i++) {
+        if (board[i][0] === board[i][1] && board[i][1] === board[i][2] && board[i][0] !== '0') {
+            winnerPositions.push(i * boardSize);
+            winnerPositions.push(i * boardSize + 1);
+            winnerPositions.push(i * boardSize + 2);
         }
     }
 
-    for (let i = 0; i < 3; i++) {
-        if (board[0][i] === board[1][i] && board[1][i] === board[2][i] && board[0][i] !== ' ') {
+    for (let i = 0; i < boardSize; i++) {
+        if (board[0][i] === board[1][i] && board[1][i] === board[2][i] && board[0][i] !== '0') {
             winnerPositions.push(i);
-            winnerPositions.push(i + 3);
-            winnerPositions.push(i + 6);
+            winnerPositions.push(i + boardSize);
+            winnerPositions.push(i + boardSize);
         }
     }
 
-    if (board[0][0] === board[1][1] && board[1][1] === board[2][2] && board[0][0] !== ' ') {
+    if (board[0][0] === board[1][1] && board[1][1] === board[2][2] && board[0][0] !== '0') {
         winnerPositions.push(0);
         winnerPositions.push(4);
         winnerPositions.push(8);

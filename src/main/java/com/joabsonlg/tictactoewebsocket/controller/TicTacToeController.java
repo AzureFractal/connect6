@@ -1,5 +1,6 @@
 package com.joabsonlg.tictactoewebsocket.controller;
 
+import com.joabsonlg.tictactoewebsocket.model.TicTacToe;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +36,7 @@ public class TicTacToeController {
     @RequestMapping("/index")
     public ModelAndView ticTacToe() {
         ModelAndView modelAndView = new ModelAndView("index");
-        String[][] board = new String[3][3];
+        String[][] board = new String[TicTacToe.BOARD_SIZE][TicTacToe.BOARD_SIZE];
         Arrays.stream(board).forEach(row -> Arrays.fill(row, " "));
         modelAndView.addObject("board", board);
         return modelAndView;
